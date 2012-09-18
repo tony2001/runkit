@@ -319,6 +319,7 @@ int php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce
 	/* Process children of this child */
 	zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), (apply_func_args_t)php_runkit_update_children_methods, 7, ancestor_class, ce, fe, fname, fname_len, orig_fe, add_or_update);
 
+#ifdef ZEND_ENGINE_2
 	if (add_or_update == HASH_ADD && ce->parent->constructor == fe) {
 		/* special case for old-style Foo::Foo() constructors */
 		zend_function *ctor;
@@ -337,6 +338,7 @@ int php_runkit_update_children_methods(RUNKIT_53_TSRMLS_ARG(zend_class_entry *ce
 		}
 		efree(lc_class_name);
 	}
+#endif
 
 	efree(fname_lower);
 
@@ -635,7 +637,7 @@ static int php_runkit_method_copy(const char *dclass, int dclass_len, const char
 
 	PHP_RUNKIT_ADD_MAGIC_METHOD(dce, dfunc, dfeInHashTable, NULL);
 
-	zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), (apply_func_args_t)php_runkit_update_children_methods, 7, dce, dce, &dfe, dfunc_lower, dfunc_len, NULL, HASH_ADD);
+	zend_hash_apply_with_arguments(RUNKIT_53_TSRMLS_PARAM(EG(class_table)), (apply_func_args_t)php_runkit_update_children_methods, 7, dce, dce, dfeInHashTable, dfunc_lower, dfunc_len, NULL, HASH_ADD);
 
 	efree(dfunc_lower);
 #if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 4) || (PHP_MAJOR_VERSION > 5)
